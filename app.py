@@ -1,9 +1,11 @@
 from fastapi import FastAPI, Depends
+from fastapi.staticfiles import StaticFiles
 
 from auth.jwt_bearer import JWTBearer
 from config.config import initiate_database
-from routes.admin import router as AdminRouter
-from routes.student import router as StudentRouter
+from routes.surrounding import router as SurroundingRouter
+
+import gradio_client
 
 app = FastAPI()
 
@@ -19,6 +21,6 @@ async def start_database():
 async def read_root():
     return {"message": "Welcome to this fantastic app."}
 
-
-app.include_router(AdminRouter, tags=["Administrator"], prefix="/admin")
-app.include_router(StudentRouter,tags=["Students"],prefix="/student",dependencies=[Depends(token_listener)],)
+app.state.moondream = gradio_client.Client("https://vikhyatk-moondream1.hf.space/--replicas/plmds/")
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+app.include_router(SurroundingRouter, tags=["Surroundings"])
